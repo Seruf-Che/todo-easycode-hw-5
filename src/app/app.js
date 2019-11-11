@@ -5,6 +5,7 @@ import List from '../list/list';
 import Footer from '../footer/footer';
 import Filter from "../filter/filter";
 import LiveSearch from "../live-search/live-search";
+import CurrentDay from "../current-day/current-day";
 
 const data = [
   {title: "drink coffee", important: false, done: false, id: 1},
@@ -22,7 +23,6 @@ class App extends React.Component {
   };
 
   add = (value) => {
-    //Чтобы исправить баг выделения всех новых айтемов как импортант или сделаные - добавляю id.
     const {list} = this.state;
     let id = 0;
     if(list.length > 0) id = list[list.length-1].id + 1;
@@ -35,8 +35,6 @@ class App extends React.Component {
     })
   };
 
-  search = () => {}
-
   changeStatus = (id, name) => {
     const { list=[] } = this.state;
     list.some((el) => {
@@ -45,14 +43,16 @@ class App extends React.Component {
     this.setState({list})
   };
 
-  remove = (id) => {
+  remove = (i) => {
     const {list} = this.state;
-    const index = list.findIndex(el => el.id === id);
-    const newArr = [
-        ...list.slice(0, index),
-        ...list.slice(index+1, list.length)
-    ];
-    this.setState({list: newArr})
+    
+    let removedItem;
+    list.some((e, ind) => {if (e.id === i) removedItem = ind});
+    
+    this.setState({list:[
+      ...list.slice(0,removedItem),
+      ...list.slice(removedItem+1,list.length)
+    ]})
   };
 
   filterFunc = (type) => {
@@ -81,19 +81,32 @@ class App extends React.Component {
     });
     return newArr
   }
+  
+  //Создал метод который сортируют массив list
+  sortList = (list) => {
+    let newList = [...list];
+    return newList
+        .sort((a, b) => (a.important === b.important)? 0 : a.important? -1 : 1)
+        .sort((a, b) => (a.done === b.done)? 0 : a.done? 1 : -1);
+  }
 
   render(){
 
     const { list, filter, keyWords } = this.state;
     const newCount = list.length;
-    let newList = this.useFilter(list, filter);
-    //нужно ли создавать новый массив для list отфильтрованого по поиску?
+    // сортируем массив
+    let newList = this.sortList(list);
+    // фильтруем отсортированный  массив
+    newList = this.useFilter(newList, filter);
+    // фильтруем отсортированный массив по поиску
     newList = this.useSearch(newList, keyWords);
-
+    
+    //После компонента Header добавил компонент CurrentDay
     return(
       <div className={`wrap`}>
         <div className={"main-container"}>
           <Header count = {newCount}/>
+          <CurrentDay />
           <LiveSearch setKeyWords={this.setKeyWords}/>
           <Filter 
             filterFunc = {this.filterFunc} 
@@ -110,5 +123,3 @@ class App extends React.Component {
 }
 
 export default App
-
-
