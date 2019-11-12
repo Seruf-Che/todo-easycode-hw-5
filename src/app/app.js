@@ -81,8 +81,7 @@ class App extends React.Component {
     });
     return newArr
   }
-  
-  //Создал метод который сортируют массив list
+
   sortList = (list) => {
     let newList = [...list];
     return newList
@@ -94,14 +93,11 @@ class App extends React.Component {
 
     const { list, filter, keyWords } = this.state;
     const newCount = list.length;
-    // сортируем массив
+
     let newList = this.sortList(list);
-    // фильтруем отсортированный  массив
     newList = this.useFilter(newList, filter);
-    // фильтруем отсортированный массив по поиску
     newList = this.useSearch(newList, keyWords);
     
-    //После компонента Header добавил компонент CurrentDay
     return(
       <div className={`wrap`}>
         <div className={"main-container"}>
